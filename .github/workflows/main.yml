@@ -1,0 +1,26 @@
+import pandas as pd
+import numpy as np
+import pandas_datareader.data as web
+import matplotlib.pyplot as plt
+
+# 삼성전자 주식 데이터 불러오기
+start_date = '2021-01-01'
+end_date = '2023-12-31'
+samsung_df = web.get_data_yahoo('005930.KS', start=start_date, end=end_date)
+
+# 코스피지수 데이터 불러오기
+kospi_df = web.get_data_yahoo('^KS11', start=start_date, end=end_date)
+
+# 종가 (Close) 컬럼만 선택
+samsung_close = samsung_df['Close']
+kospi_close = kospi_df['Close']
+
+# 로그 수익률 계산
+samsung_returns = np.log(samsung_close / samsung_close.shift(1))
+kospi_returns = np.log(kospi_close / kospi_close.shift(1))
+
+# 공적분 계산
+cov_matrix = np.cov(samsung_returns, kospi_returns)
+beta = cov_matrix[0, 1] / cov_matrix[1, 1]
+
+print(f"삼성전자와 코스피지수의 공적분 관계 (베타): {beta:.4f}")
